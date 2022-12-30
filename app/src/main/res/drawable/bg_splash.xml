@@ -3,11 +3,23 @@
     <item>
         <color android:color="@color/white" />
     </item>
-    <item>
-        <bitmap android:gravity="center"
-            android:src="@drawable/splash_background" />
+    <item
+        android:top="@dimen/splash_icon_margin"
+        android:bottom="@dimen/splash_icon_margin"
+        android:start="@dimen/splash_icon_margin"
+        android:end="@dimen/splash_icon_margin"
+        android:width="@dimen/splash_icon_size"
+        android:height="@dimen/splash_icon_size"
+        android:gravity="center"
+        android:drawable="@drawable/splash_background">
     </item>
     <item
-        android:gravity="center"
-        android:drawable="@drawable/splash_title"/>
+        android:top="@dimen/splash_icon_margin"
+        android:bottom="@dimen/splash_icon_margin"
+        android:start="@dimen/splash_icon_margin"
+        android:end="@dimen/splash_icon_margin"
+        android:width="@dimen/splash_icon_size"
+        android:height="@dimen/splash_icon_size"
+        android:drawable="@drawable/splash_title"
+        android:gravity="fill_horizontal|fill_vertical" />
 </layer-list>
