@@ -30,6 +30,6 @@ class SplashActivity: ComponentActivity() {
     }
 
     private companion object {
-        const val SPLASH_DELAY = 3000L
+        const val SPLASH_DELAY = 1000L
     }
 }
