@@ -1,10 +1,12 @@
 package com.github.mobdev778.yusupova.animatedsplashview
 
 import android.graphics.Bitmap
+import android.graphics.Color
 import com.github.mobdev778.yusupova.animatedsplashview.figure.Point
 import com.github.mobdev778.yusupova.animatedsplashview.figure.XYMap
 import kotlinx.coroutines.delay
 
+@Suppress("TooManyFunctions")
 internal data class AnimatedSplashState(
     val number: Int = 0,
     private val width: Int = 0,
@@ -13,7 +15,7 @@ internal data class AnimatedSplashState(
     private val bitmap: Bitmap? = null,
     private val bitmapPixels: IntArray = IntArray(0),
     private val visitedPoints: XYMap<Point> = XYMap(),
-    private val edgePoints: ArrayDeque<Point> = ArrayDeque(100),
+    private val edgePoints: ArrayDeque<Point> = ArrayDeque(DEFAULT_QUEUE_SIZE),
     private val pointsPerFrame: Int = 0,
     private val alphaValues: IntArray = IntArray(0)
 ) {
@@ -23,13 +25,18 @@ internal data class AnimatedSplashState(
 
     override fun equals(other: Any?): Boolean {
         if (other is AnimatedSplashState) {
-            return number == other.number
+            return number == other.number &&
+                    width == other.width &&
+                    height == other.height
         }
         return false
     }
 
     override fun hashCode(): Int {
-        return number
+        var result = number
+        result = 31 * result + width
+        result = 31 * result + height
+        return result
     }
 
     fun initialize(
@@ -42,7 +49,7 @@ internal data class AnimatedSplashState(
         val bitmap = createBitmap(originalBitmap.width, originalBitmap.height)
         bitmap.setPixel(startPoint.x, startPoint.y, startPoint.color)
 
-        val edgePoints = ArrayDeque<Point>(100)
+        val edgePoints = ArrayDeque<Point>(DEFAULT_QUEUE_SIZE)
         edgePoints.add(startPoint)
 
         return copy(
@@ -77,6 +84,7 @@ internal data class AnimatedSplashState(
         )
     }
 
+    @Suppress("NestedBlockDepth")
     private fun Bitmap.getStartPoint(): Pair<Point, Int> {
         var pixelCount = 0
         val pixels = toIntArray()
@@ -88,7 +96,7 @@ internal data class AnimatedSplashState(
             for (x in 0 until width) {
                 val offset = lineOffset + x
                 val color = pixels[offset]
-                if (color != TRANSPARENT_COLOR) {
+                if (color != Color.TRANSPARENT) {
                     pixelCount++
                     if (x > startX || x == startX && y > startY) {
                         startX = x
@@ -114,7 +122,7 @@ internal data class AnimatedSplashState(
             pointsAdded++
             bitmapPixels[point.offset] = point.color
 
-            if (pointsAdded % 18 == 0) {
+            if (pointsAdded % SHUFFLE_STEP == 0) {
                 edgePoints.shuffle()
             }
 
@@ -157,7 +165,7 @@ internal data class AnimatedSplashState(
             this.alphaValues
         }
 
-        delay(15)
+        delay(TRANSPARENCY_ANIMATION_DELAY)
         visitedPoints.valueIterator().forEach { point ->
             val index = point.generation % alphaValues.size
             val maskedRGB = point.getMaskedRgb()
@@ -176,7 +184,7 @@ internal data class AnimatedSplashState(
 
     private fun createBitmap(width: Int, height: Int): Bitmap {
         val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
-        bitmap.eraseColor(TRANSPARENT_COLOR)
+        bitmap.eraseColor(Color.TRANSPARENT)
         return bitmap
     }
 
@@ -190,7 +198,7 @@ internal data class AnimatedSplashState(
         val neighbour = visitedPoints.get(x, y)
         if (neighbour == null) {
             val color = originalBitmap?.getPixel(x, y)
-            if (color != TRANSPARENT_COLOR && color != null) {
+            if (color != Color.TRANSPARENT && color != null) {
                 val newPoint = Point(x, y, y * width + x, color, generation + 1)
                 visitedPoints.put(x, y, newPoint)
                 edgePoints.addLast(newPoint)
@@ -215,10 +223,12 @@ internal data class AnimatedSplashState(
     }
 
     companion object {
-        private const val TRANSPARENT_COLOR = 0x00000000
+        private const val DEFAULT_QUEUE_SIZE = 100
         private const val ALPHA_COLOR_OFFSET = 24
         private const val MAX_ALPHA = 255
         private const val ALPHA_SEGMENTS = 4
         private const val LAST_ALPHA_SEGMENT = ALPHA_SEGMENTS - 1
+        private const val SHUFFLE_STEP = 18
+        private const val TRANSPARENCY_ANIMATION_DELAY = 15L
     }
 }

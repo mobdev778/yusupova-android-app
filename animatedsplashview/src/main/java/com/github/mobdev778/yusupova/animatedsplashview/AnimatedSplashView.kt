@@ -27,7 +27,7 @@ import kotlinx.coroutines.asCoroutineDispatcher
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-@Suppress("ComplexCondition")
+@Suppress("ComplexCondition", "FunctionNaming")
 @Composable
 fun AnimatedSplashView(
     bitmap: ImageBitmap,

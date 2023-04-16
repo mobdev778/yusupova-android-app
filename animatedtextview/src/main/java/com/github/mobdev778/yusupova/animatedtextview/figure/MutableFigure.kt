@@ -1,42 +1,40 @@
 package com.github.mobdev778.yusupova.animatedtextview.figure
 
-import android.graphics.Point
-
 internal class MutableFigure : Figure {
 
-    private val mutablePoints = mutableSetOf<Point>()
+    private val points: XYMap<Point> = XYMap()
     private var mutableCenterPoint: Point? = null
     private var mutableStartPoint: Point? = null
 
     private var allX: Long = 0
     private var allY: Long = 0
 
-    fun addPoint(x: Int, y: Int): Point {
-        val point = Point(x, y)
-
-        mutablePoints.add(point)
-        allX += x
-        allY += y
+    fun addPoint(point: Point) {
+        points.put(point.x, point.y, point)
+        allX += point.x
+        allY += point.y
 
         mutableCenterPoint = null
-        return point
     }
 
-    override fun getPoints(): Set<Point> {
-        return mutablePoints
+    override fun getPoint(x: Int, y: Int): Point? {
+        return points.get(x, y)
     }
 
-    override fun getCenterPoint(): Point? {
+    override val size: Int = points.size()
+
+    override fun getCenterPoint(): Point {
         if (mutableCenterPoint != null) {
-            return mutableCenterPoint
+            return mutableCenterPoint!!
         }
 
-        val mathCenterX = (allX / mutablePoints.size)
-        val mathCenterY = (allY / mutablePoints.size)
+        val mathCenterX = (allX / points.size())
+        val mathCenterY = (allY / points.size())
 
         var bestDist: Long = 0
         var bestPoint: Point? = null
-        for (point in mutablePoints) {
+
+        points.valueIterator().forEach { point ->
             val dist =
                 (point.x - mathCenterX) * (point.x - mathCenterX) +
                         (point.y - mathCenterY) * (point.y - mathCenterY)
@@ -46,27 +44,27 @@ internal class MutableFigure : Figure {
             }
         }
         mutableCenterPoint = bestPoint
-        return bestPoint
+        return bestPoint!!
     }
 
-    override fun getStartPoint(): Point? {
+    override fun getStartPoint(): Point {
         if (mutableStartPoint != null) {
-            return mutableStartPoint
+            return mutableStartPoint!!
         }
 
         var bestX = 0
         var bestPoint: Point? = null
-        for (point in mutablePoints) {
+        points.valueIterator().forEach { point ->
             if (bestPoint == null || point.x < bestX) {
                 bestX = point.x
                 bestPoint = point
             }
         }
         mutableStartPoint = bestPoint
-        return bestPoint
+        return bestPoint!!
     }
 
     fun toFigure(): Figure {
-        return ImmutableFigure(mutablePoints, getCenterPoint(), getStartPoint())
+        return ImmutableFigure(points, getCenterPoint(), getStartPoint())
     }
 }
