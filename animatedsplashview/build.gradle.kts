@@ -4,7 +4,7 @@ plugins {
 }
 
 android {
-    namespace = "com.github.mobdev778.yusupova.animatedtextview"
+    namespace = "com.github.mobdev778.yusupova.animatedsplashview"
     compileSdk = ProjectVersions.compileSdk
 
     defaultConfig {

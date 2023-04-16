@@ -48,7 +48,8 @@ android {
 
 dependencies {
     implementation (
-        ProjectLibs.animatedTextView
+        ProjectLibs.animatedTextView,
+        ProjectLibs.animatedSplashView
     )
 
     implementation (
