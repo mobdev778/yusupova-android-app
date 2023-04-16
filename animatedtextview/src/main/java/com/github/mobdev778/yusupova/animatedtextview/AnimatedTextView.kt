@@ -67,7 +67,7 @@ fun AnimatedTextView(
         val height = size.height.toInt()
 
         if (!state.isInitialized() && job?.isActive != true && width > 0) {
-            job = backgroundScope.launch(Dispatchers.IO) {
+            job = backgroundScope.launch {
                 state = state.initialize(text, width, height, textPaint, alignment)
             }
         }
@@ -75,7 +75,7 @@ fun AnimatedTextView(
         state.getBitmap()?.let { bitmap ->
             drawIntoCanvas {
                 it.nativeCanvas.drawBitmap(bitmap, 0f, 0f, textPaint)
-                job = backgroundScope.launch(Dispatchers.IO) {
+                job = backgroundScope.launch {
                     val newState = state.nextState()
                     if (newState != state) {
                         state = newState

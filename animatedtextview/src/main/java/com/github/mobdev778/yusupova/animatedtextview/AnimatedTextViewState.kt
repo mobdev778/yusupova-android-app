@@ -2,7 +2,6 @@ package com.github.mobdev778.yusupova.animatedtextview
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
-import android.graphics.Point
 import android.os.SystemClock
 import android.text.BoringLayout
 import android.text.Layout
@@ -11,7 +10,7 @@ import android.text.TextPaint
 import android.text.TextUtils
 import com.github.mobdev778.yusupova.animatedtextview.figure.Figure
 import com.github.mobdev778.yusupova.animatedtextview.figure.FigureBuilder
-import java.util.Random
+import com.github.mobdev778.yusupova.animatedtextview.figure.Point
 
 @Suppress("TooManyFunctions")
 internal data class AnimatedTextViewState(
@@ -26,23 +25,21 @@ internal data class AnimatedTextViewState(
     private var letterPixels: IntArray = intArrayOf(),
     private var bitmap: Bitmap? = null,
 
-    private var figures: List<Figure>? = null,
-    private var generations: MutableList<MutableList<Point>> = mutableListOf(),
-    private var figureStartTime: LongArray = longArrayOf(),
-    private var random: Random = Random()
+    private var figures: List<Figure> = mutableListOf(),
+    private var pointQueues: MutableList<ArrayDeque<Point>> = mutableListOf(),
+    private var figureStartTime: LongArray = longArrayOf()
 ) {
 
     constructor() : this(0)
 
     fun reset(): AnimatedTextViewState {
-        figures = null
         bitmap?.recycle()
         bitmap = null
-        return copy(number = 0, figures = null, bitmap = null)
+        return copy(number = 0, figures = arrayListOf(), bitmap = null)
     }
 
     fun isInitialized(): Boolean {
-        return figures != null
+        return figures.isNotEmpty()
     }
 
     fun initialize(
@@ -70,19 +67,17 @@ internal data class AnimatedTextViewState(
         val bitmap = createBitmap(width, height)
         letterPixels = bitmap.toIntArray()
         this.bitmap = bitmap
-        val initialGenerations = mutableListOf<MutableList<Point>>()
-        figures?.forEach { figure ->
-            val oldGeneration = mutableListOf<Point>()
+        val initialPointQueues = mutableListOf<ArrayDeque<Point>>()
+        figures.forEach { figure ->
+            val pointQueue = ArrayDeque<Point>(DEFAULT_QUEUE_SIZE)
             val startPoint = figure.getStartPoint()
-            startPoint?.run {
-                oldGeneration.add(this)
-            }
-            initialGenerations.add(oldGeneration)
+            pointQueue.add(startPoint)
+            initialPointQueues.add(pointQueue)
         }
-        generations = initialGenerations
+        pointQueues = initialPointQueues
 
         // 4) postpone next "onDraw()" call
-        figureStartTime = LongArray(figures!!.size) { index ->
+        figureStartTime = LongArray(figures.size) { index ->
             SystemClock.elapsedRealtime() + index * DELAY
         }
 
@@ -95,7 +90,7 @@ internal data class AnimatedTextViewState(
             layout = layout,
             originalPixels = originalPixels,
             figures = figures,
-            generations = generations,
+            pointQueues = pointQueues,
             figureStartTime = figureStartTime
         )
     }
@@ -106,9 +101,9 @@ internal data class AnimatedTextViewState(
 
     fun nextState(): AnimatedTextViewState {
         var bitmapChanged = false
-        figures?.forEachIndexed { index, figure ->
+        figures.forEachIndexed { index, figure ->
             if (SystemClock.elapsedRealtime() > figureStartTime[index]) {
-                val pointsPerFrame = figure.getPoints().size / FRAMES
+                val pointsPerFrame = figure.size / FRAMES
                 val pointsAdded = buildNewGeneration(index, pointsPerFrame)
                 if (pointsAdded > 0) {
                     bitmapChanged = true
@@ -205,59 +200,46 @@ internal data class AnimatedTextViewState(
     @Suppress("CyclomaticComplexMethod")
     private fun buildNewGeneration(index: Int, pointsPerFrame: Int): Int {
         var pointsAdded = 0
-        while (pointsAdded < pointsPerFrame) {
-            val oldGeneration = generations[index]
-            if (oldGeneration.isEmpty()) {
-                break
+        val deque = pointQueues[index]
+        val figure = figures[index]
+        while (pointsAdded < pointsPerFrame && deque.isNotEmpty()) {
+            if (pointsAdded % SHUFFLE_STEP == 0) {
+                deque.shuffle()
             }
+            val point = deque.removeFirst()
+            letterPixels[point.offset] = point.color
+            pointsAdded++
 
-            val newGeneration = mutableListOf<Point>()
-
-            oldGeneration.shuffle()
-
-            var skipToNextFrame = false
-            for (point in oldGeneration) {
-                if (random.nextInt(TOTAL_CHANSES) < CHANCES_OF_GROWTH || skipToNextFrame) {
-                    newGeneration.add(point)
-                    continue
-                }
-                if (point.x > 0 && newGeneration.addNeighbour(point.x - 1, point.y)) {
-                    pointsAdded++
-                }
-                if (point.y > 0 && newGeneration.addNeighbour(point.x, point.y - 1)) {
-                    pointsAdded++
-                }
-                if (point.x + 1 < width && newGeneration.addNeighbour(point.x + 1, point.y)) {
-                    pointsAdded++
-                }
-                if (point.y + 1 < height && newGeneration.addNeighbour(point.x, point.y + 1)) {
-                    pointsAdded++
-                }
-                if (pointsAdded > pointsPerFrame) {
-                    skipToNextFrame = true
-                }
+            if (point.x > 0) {
+                deque.addNeighbour(figure, point.x - 1, point.y)
             }
-            generations[index] = newGeneration
+            if (point.y > 0) {
+                deque.addNeighbour(figure, point.x, point.y - 1)
+            }
+            if (point.x + 1 < width) {
+                deque.addNeighbour(figure, point.x + 1, point.y)
+            }
+            if (point.y + 1 < height) {
+                deque.addNeighbour(figure, point.x, point.y + 1)
+            }
         }
+        bitmap?.setPixels(letterPixels, 0, width, 0, 0, width, height)
         return pointsAdded
     }
 
-    private fun MutableList<Point>.addNeighbour(x: Int, y: Int): Boolean {
-        val offset = y * width + x
-        val color = originalPixels[offset]
-        if (color != TRANSPARENT_COLOR && letterPixels[offset] != color) {
-            add(Point(x, y))
-            letterPixels[offset] = color
-            return true
+    private fun ArrayDeque<Point>.addNeighbour(figure: Figure, x: Int, y: Int) {
+        val point = figure.getPoint(x, y)
+        if (point != null && !point.visited) {
+            add(point)
+            point.visited = true
         }
-        return false
     }
 
     private companion object {
         const val TRANSPARENT_COLOR = 0x00000000
         const val DELAY = 50
         const val FRAMES = 18
-        const val TOTAL_CHANSES = 10
-        const val CHANCES_OF_GROWTH = 4
+        const val SHUFFLE_STEP = 18
+        const val DEFAULT_QUEUE_SIZE = 100
     }
 }

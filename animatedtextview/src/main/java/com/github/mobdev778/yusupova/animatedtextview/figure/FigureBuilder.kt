@@ -43,53 +43,55 @@ internal class FigureBuilder {
 
         val figures = mutableListOf<Figure>()
 
-        val maxWidth = width
-        val bitmap = Bitmap.createBitmap(maxWidth, height, Bitmap.Config.ARGB_8888)
-
+        val bitmap = Bitmap.createBitmap(width, height, Bitmap.Config.ARGB_8888)
         val canvas = Canvas(bitmap)
-        canvas.drawARGB(0xFF, 0x00, 0x00, 0xFF)
-
-        val redPaint = Paint(textPaint).apply { color = Color.RED }
-        val greenPaint = Paint(textPaint).apply { color = Color.GREEN }
+        canvas.drawARGB(0x00, 0x00, 0x00, 0x00)
 
         text.forEachIndexed { index, letter ->
-            val paint = if (index % 2 == 0) redPaint else greenPaint
             val lineIndex = layout.getLineForOffset(index)
             val left = layout.getPrimaryHorizontal(index)
             val baseLineY = layout.getLineBaseline(lineIndex).toFloat()
-            canvas.drawText(letter.toString(), left, baseLineY, paint)
+            canvas.drawText(letter.toString(), left, baseLineY, textPaint)
         }
 
-        val bitmapPixels = IntArray(maxWidth * bitmap.height)
-        bitmap.getPixels(bitmapPixels, 0, maxWidth, 0, 0, maxWidth, bitmap.height)
+        val bitmapPixels = IntArray(width * bitmap.height)
+        bitmap.getPixels(bitmapPixels, 0, width, 0, 0, width, bitmap.height)
         bitmap.recycle()
 
         val widths = FloatArray(1)
+        val clearPaint = Paint(textPaint).apply { color = Color.TRANSPARENT }
         text.forEachIndexed { index, letter ->
-            val paint = if (index % 2 == 0) redPaint else greenPaint
-            val lineIndex = layout.getLineForOffset(index)
-            val left = layout.getPrimaryHorizontal(index).toInt()
+            canvas.drawRect(0f, 0f, width.toFloat(), height.toFloat(), clearPaint)
 
-            paint.getTextWidths(letter.toString(), widths)
-            val letterWidth = (widths[0] * 1.1f).toInt() // * 1.1f - fix for bold italic letters
+            val lineIndex = layout.getLineForOffset(index)
+            val left = layout.getPrimaryHorizontal(index)
+            val baseLineY = layout.getLineBaseline(lineIndex).toFloat()
+            canvas.drawText(letter.toString(), left, baseLineY, textPaint)
+
+            textPaint.getTextWidths(letter.toString(), widths)
+            val letterWidth = (widths[0] * ITALIC_WIDTH_MULTIPLIER).toInt()
             val top = layout.getLineTop(lineIndex)
             val bottom = layout.getLineBottom(lineIndex).coerceAtMost(height)
-            val right = (left + letterWidth).coerceAtMost(maxWidth)
+            val right = (left.toInt() + letterWidth).coerceAtMost(width)
+
 
             val letterFigures = calculateFigures(
-                bitmapPixels, maxWidth,
-                left, top, right - left, bottom - top,
-                paint.color
+                bitmapPixels, width,
+                left.toInt(), top, right - left.toInt(), bottom - top,
             )
             figures.addAll(letterFigures)
         }
         return figures
     }
 
+    @Suppress("CyclomaticComplexMethod", "LongMethod", "NestedBlockDepth", "LongParameterList")
     private fun calculateFigures(
-        bitmapPixels: IntArray, bitmapWidth: Int,
-        startX: Int, startY: Int, width: Int, height: Int,
-        figureColor: Int
+        bitmapPixels: IntArray,
+        bitmapWidth: Int,
+        startX: Int,
+        startY: Int,
+        width: Int,
+        height: Int
     ): List<Figure> {
         val markers = Array<Array<Marker?>>(height) {
             Array(width) { null }
@@ -105,7 +107,7 @@ internal class FigureBuilder {
                 val offset = yOffset + startX + x
                 if (offset < bitmapPixels.size) {
                     val color = bitmapPixels[yOffset + startX + x]
-                    if (color == figureColor) {
+                    if (color != Color.TRANSPARENT) {
                         successiveIncrements = 0
 
                         val nw = if (x > 0 && y > 0) {
@@ -145,17 +147,20 @@ internal class FigureBuilder {
             for (x in 0 until width) {
                 val marker = markers[y][x]
                 if (marker != null) {
+                    val offset = (startY + y) * bitmapWidth + startX + x
+                    val point = Point(startX + x, startY + y, offset, bitmapPixels[offset])
                     val oldFigure = markerFigureMap[marker.number]
                     if (oldFigure != null) {
-                        oldFigure.addPoint(startX + x, startY + y)
+                        oldFigure.addPoint(point)
                     } else {
                         val newFigure = MutableFigure()
-                        newFigure.addPoint(startX + x, startY + y)
+                        newFigure.addPoint(point)
                         markerFigureMap[marker.number] = newFigure
                     }
                 }
             }
         }
+
         markerFigureMap.values.forEach {
             figures.add(it.toFigure())
         }
@@ -174,5 +179,10 @@ internal class FigureBuilder {
             }
         }
         return minMarker!!
+    }
+
+    companion object {
+        // 1.2f - fix for bold italic letters
+        private const val ITALIC_WIDTH_MULTIPLIER = 1.2f
     }
 }
