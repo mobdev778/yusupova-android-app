@@ -19,4 +19,8 @@ internal class ImmutableFigure(
     override fun getStartPoint(): Point {
         return startPoint
     }
+
+    override fun iterator(): Iterator<Point> {
+        return points.valueIterator()
+    }
 }

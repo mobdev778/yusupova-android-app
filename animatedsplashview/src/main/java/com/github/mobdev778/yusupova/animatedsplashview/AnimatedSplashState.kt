@@ -8,7 +8,8 @@ import kotlinx.coroutines.delay
 
 @Suppress("TooManyFunctions")
 internal data class AnimatedSplashState(
-    val number: Int = 0,
+    private val number: Int = 0,
+    private val mode: AnimatedSplashMode = AnimatedSplashMode.DEFAULT,
     private val width: Int = 0,
     private val height: Int = 0,
     private val originalBitmap: Bitmap? = null,
@@ -40,7 +41,8 @@ internal data class AnimatedSplashState(
     }
 
     fun initialize(
-        originalBitmap: Bitmap
+        originalBitmap: Bitmap,
+        mode: AnimatedSplashMode
     ): AnimatedSplashState {
         val pair = originalBitmap.getStartPoint()
         val startPoint = pair.first
@@ -54,6 +56,7 @@ internal data class AnimatedSplashState(
 
         return copy(
             number = 1,
+            mode = mode,
             width = originalBitmap.width,
             height = originalBitmap.height,
             originalBitmap = originalBitmap,
@@ -72,16 +75,19 @@ internal data class AnimatedSplashState(
 
     suspend fun nextState(): AnimatedSplashState {
         val pointsAdded = buildNewGeneration(pointsPerFrame)
-        if (pointsAdded == 0) {
-            val alphaValues = updateGenerations()
-            return copy(
-                number = number + 1,
-                alphaValues = alphaValues
-            )
+
+        return when {
+            pointsAdded > 0 -> {
+                copy(number = number + 1)
+            }
+            pointsAdded == 0 && mode == AnimatedSplashMode.CLOCKWISE_SHIMMER -> {
+                val alphaValues = updateAlphaValues()
+                copy(number = number + 1, alphaValues = alphaValues)
+            }
+            else -> {
+                this
+            }
         }
-        return copy(
-            number = number + 1,
-        )
     }
 
     @Suppress("NestedBlockDepth")
@@ -114,11 +120,9 @@ internal data class AnimatedSplashState(
     private fun buildNewGeneration(pointsPerFrame: Int): Int {
         var pointsAdded = 0
 
-        var generation: Int? = null
-
         while (pointsAdded < pointsPerFrame && edgePoints.isNotEmpty()) {
             val point = edgePoints.removeFirst()
-            generation = generation ?: point.generation
+            point.generation = number - 1
             pointsAdded++
             bitmapPixels[point.offset] = point.color
 
@@ -126,39 +130,23 @@ internal data class AnimatedSplashState(
                 edgePoints.shuffle()
             }
 
-            if (point.y > 0) {
-                if (point.x > 0) {
-                    addNeighbour(point.x - 1, point.y - 1, generation)
-                }
-                addNeighbour(point.x, point.y - 1, generation)
-                if (point.x < width - 1) {
-                    addNeighbour(point.x + 1, point.y - 1, generation)
-                }
-            }
+            addNeighbour(point.x - 1, point.y - 1)
+            addNeighbour(point.x, point.y - 1)
+            addNeighbour(point.x + 1, point.y - 1)
 
-            if (point.x > 0) {
-                addNeighbour(point.x - 1, point.y, generation)
-            }
-            if (point.x < width - 1) {
-                addNeighbour(point.x + 1, point.y, generation)
-            }
+            addNeighbour(point.x - 1, point.y)
+            addNeighbour(point.x + 1, point.y)
 
-            if (point.y < height - 1) {
-                if (point.x > 0) {
-                    addNeighbour(point.x - 1, point.y + 1, generation)
-                }
-                addNeighbour(point.x, point.y + 1, generation)
-                if (point.x < width - 1) {
-                    addNeighbour(point.x + 1, point.y + 1, generation)
-                }
-            }
+            addNeighbour(point.x - 1, point.y + 1)
+            addNeighbour(point.x, point.y + 1)
+            addNeighbour(point.x + 1, point.y + 1)
         }
 
         bitmap?.setPixels(bitmapPixels, 0, width, 0, 0, width, height)
         return pointsAdded
     }
 
-    private suspend fun updateGenerations(): IntArray {
+    private suspend fun updateAlphaValues(): IntArray {
         val alphaValues = if (alphaValues.isEmpty()) {
             calculateAlphaValues()
         } else {
@@ -168,8 +156,8 @@ internal data class AnimatedSplashState(
         delay(TRANSPARENCY_ANIMATION_DELAY)
         visitedPoints.valueIterator().forEach { point ->
             val index = point.generation % alphaValues.size
-            val maskedRGB = point.getMaskedRgb()
-            val newColor = alphaValues[index].shl(ALPHA_COLOR_OFFSET).or(maskedRGB)
+            val alpha = alphaValues[index]
+            val newColor = point.getColor(alpha)
             bitmapPixels[point.offset] = newColor
         }
 
@@ -194,12 +182,16 @@ internal data class AnimatedSplashState(
         return pixels
     }
 
-    private fun addNeighbour(x: Int, y: Int, generation: Int) {
+    @Suppress("ComplexCondition")
+    private fun addNeighbour(x: Int, y: Int) {
         val neighbour = visitedPoints.get(x, y)
-        if (neighbour == null) {
+        if (neighbour != null) {
+            return
+        }
+        if (x >= 0 && y >= 0 && x < width && y < height) {
             val color = originalBitmap?.getPixel(x, y)
             if (color != Color.TRANSPARENT && color != null) {
-                val newPoint = Point(x, y, y * width + x, color, generation + 1)
+                val newPoint = Point(x, y, y * width + x, color)
                 visitedPoints.put(x, y, newPoint)
                 edgePoints.addLast(newPoint)
             }
@@ -213,13 +205,23 @@ internal data class AnimatedSplashState(
                 maxGeneration = point.generation
             }
         }
-        val alphaValues = IntArray(maxGeneration * ALPHA_SEGMENTS)
+
+        val size = getAlignedSize(maxGeneration * ALPHA_SEGMENTS)
+        val alphaValues = IntArray(size)
         for (index in 0 until maxGeneration) {
             alphaValues[index] = MAX_ALPHA
             alphaValues[index + maxGeneration] = MAX_ALPHA - MAX_ALPHA * index / maxGeneration
-            alphaValues[index + maxGeneration * LAST_ALPHA_SEGMENT] = MAX_ALPHA * index / maxGeneration
+            alphaValues[alphaValues.size - maxGeneration + index] = MAX_ALPHA * index / maxGeneration
         }
         return alphaValues
+    }
+
+    private fun getAlignedSize(calculatedSize: Int): Int {
+        var nearestPowerOfTwo = 1
+        while (nearestPowerOfTwo < calculatedSize) {
+            nearestPowerOfTwo = nearestPowerOfTwo.shl(1)
+        }
+        return nearestPowerOfTwo
     }
 
     companion object {
@@ -227,7 +229,6 @@ internal data class AnimatedSplashState(
         private const val ALPHA_COLOR_OFFSET = 24
         private const val MAX_ALPHA = 255
         private const val ALPHA_SEGMENTS = 4
-        private const val LAST_ALPHA_SEGMENT = ALPHA_SEGMENTS - 1
         private const val SHUFFLE_STEP = 18
         private const val TRANSPARENCY_ANIMATION_DELAY = 15L
     }

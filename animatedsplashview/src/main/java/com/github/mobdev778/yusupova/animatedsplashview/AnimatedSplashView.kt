@@ -32,6 +32,7 @@ import java.util.concurrent.Executors
 fun AnimatedSplashView(
     bitmap: ImageBitmap,
     modifier: Modifier = Modifier,
+    mode: AnimatedSplashMode = AnimatedSplashMode.DEFAULT
 ) {
     var job: Job? = null
     val backgroundScope: CoroutineScope by lazy {
@@ -51,7 +52,7 @@ fun AnimatedSplashView(
         if (!state.isInitialized() && job?.isActive != true && width > 0 && height > 0) {
             job = backgroundScope.launch {
                 val androidBitmap = bitmap.asAndroidBitmap().getResizedBitmap(width, height)
-                state = state.initialize(androidBitmap)
+                state = state.initialize(androidBitmap, mode)
             }
         }
 

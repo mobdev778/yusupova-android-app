@@ -11,10 +11,12 @@ import android.text.TextUtils
 import com.github.mobdev778.yusupova.animatedtextview.figure.Figure
 import com.github.mobdev778.yusupova.animatedtextview.figure.FigureBuilder
 import com.github.mobdev778.yusupova.animatedtextview.figure.Point
+import kotlinx.coroutines.delay
 
 @Suppress("TooManyFunctions")
 internal data class AnimatedTextViewState(
-    private var number: Int = 0,
+    private val number: Int = 0,
+    private val mode: AnimatedTextMode = AnimatedTextMode.DEFAULT,
     private var width: Int = 0,
     private var height: Int = 0,
     private var text: String = "",
@@ -27,7 +29,9 @@ internal data class AnimatedTextViewState(
 
     private var figures: List<Figure> = mutableListOf(),
     private var pointQueues: MutableList<ArrayDeque<Point>> = mutableListOf(),
-    private var figureStartTime: LongArray = longArrayOf()
+    private var figureStartTime: LongArray = longArrayOf(),
+
+    private val alphaValues: IntArray = IntArray(0)
 ) {
 
     constructor() : this(0)
@@ -43,6 +47,7 @@ internal data class AnimatedTextViewState(
     }
 
     fun initialize(
+        mode: AnimatedTextMode,
         text: String,
         width: Int,
         height: Int,
@@ -83,6 +88,7 @@ internal data class AnimatedTextViewState(
 
         return copy(
             number = number + 1,
+            mode = mode,
             width = width,
             height = height,
             text = text,
@@ -99,7 +105,7 @@ internal data class AnimatedTextViewState(
         return bitmap
     }
 
-    fun nextState(): AnimatedTextViewState {
+    suspend fun nextState(): AnimatedTextViewState {
         var bitmapChanged = false
         figures.forEachIndexed { index, figure ->
             if (SystemClock.elapsedRealtime() > figureStartTime[index]) {
@@ -108,18 +114,25 @@ internal data class AnimatedTextViewState(
                 if (pointsAdded > 0) {
                     bitmapChanged = true
                 }
+            } else {
+                // should update this figure in the future
+                bitmapChanged = true
             }
         }
 
-        if (!bitmapChanged) {
-            return this
+        return when {
+            bitmapChanged -> {
+                bitmap?.setPixels(letterPixels, 0, width, 0, 0, width, height)
+                copy(number = number + 1)
+            }
+            mode == AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER -> {
+                val alphaValues = updateAlphaValues()
+                copy(number = number + 1, alphaValues = alphaValues)
+            }
+            else -> {
+                this
+            }
         }
-
-        bitmap?.setPixels(letterPixels, 0, width, 0, 0, width, height)
-        return copy(
-            number = number + 1,
-            bitmap = bitmap
-        )
     }
 
     override fun equals(other: Any?): Boolean {
@@ -202,26 +215,21 @@ internal data class AnimatedTextViewState(
         var pointsAdded = 0
         val deque = pointQueues[index]
         val figure = figures[index]
+
         while (pointsAdded < pointsPerFrame && deque.isNotEmpty()) {
             if (pointsAdded % SHUFFLE_STEP == 0) {
                 deque.shuffle()
             }
             val point = deque.removeFirst()
+            point.generation = number - 1
+
             letterPixels[point.offset] = point.color
             pointsAdded++
 
-            if (point.x > 0) {
-                deque.addNeighbour(figure, point.x - 1, point.y)
-            }
-            if (point.y > 0) {
-                deque.addNeighbour(figure, point.x, point.y - 1)
-            }
-            if (point.x + 1 < width) {
-                deque.addNeighbour(figure, point.x + 1, point.y)
-            }
-            if (point.y + 1 < height) {
-                deque.addNeighbour(figure, point.x, point.y + 1)
-            }
+            deque.addNeighbour(figure, point.x - 1, point.y)
+            deque.addNeighbour(figure, point.x, point.y - 1)
+            deque.addNeighbour(figure, point.x + 1, point.y)
+            deque.addNeighbour(figure, point.x, point.y + 1)
         }
         bitmap?.setPixels(letterPixels, 0, width, 0, 0, width, height)
         return pointsAdded
@@ -235,11 +243,68 @@ internal data class AnimatedTextViewState(
         }
     }
 
-    private companion object {
-        const val TRANSPARENT_COLOR = 0x00000000
-        const val DELAY = 50
-        const val FRAMES = 18
-        const val SHUFFLE_STEP = 18
-        const val DEFAULT_QUEUE_SIZE = 100
+    private suspend fun updateAlphaValues(): IntArray {
+        val alphaValues = if (alphaValues.isEmpty()) {
+            calculateAlphaValues()
+        } else {
+            this.alphaValues
+        }
+
+        delay(TRANSPARENCY_ANIMATION_DELAY)
+        figures.forEach { figure ->
+            figure.iterator().forEach { point ->
+                val index = point.generation % alphaValues.size
+                val newColor = point.getColor(alphaValues[index])
+                letterPixels[point.offset] = newColor
+            }
+        }
+
+        val lastAlpha = alphaValues[alphaValues.size - 1]
+        for (i in alphaValues.size - 2 downTo  0) {
+            alphaValues[i + 1] = alphaValues[i]
+        }
+        alphaValues[0] = lastAlpha
+        bitmap?.setPixels(letterPixels, 0, width, 0, 0, width, height)
+        return alphaValues
+    }
+
+    private fun calculateAlphaValues(): IntArray {
+        var maxGeneration = -1
+        figures.forEach { figure ->
+            figure.iterator().forEach { point ->
+                if (maxGeneration < point.generation) {
+                    maxGeneration = point.generation
+                }
+            }
+        }
+
+        val size = getAlignedSize(maxGeneration * ALPHA_SEGMENTS)
+        val alphaValues = IntArray(size)
+        for (index in 0 until maxGeneration) {
+            alphaValues[index] = MAX_ALPHA
+            alphaValues[index + maxGeneration] = MAX_ALPHA - MAX_ALPHA * index / maxGeneration
+            alphaValues[alphaValues.size - maxGeneration + index] = MAX_ALPHA * index / maxGeneration
+        }
+        return alphaValues
+    }
+
+    private fun getAlignedSize(calculatedSize: Int): Int {
+        var nearestPowerOfTwo = 1
+        while (nearestPowerOfTwo < calculatedSize) {
+            nearestPowerOfTwo = nearestPowerOfTwo.shl(1)
+        }
+        return nearestPowerOfTwo
+    }
+
+    companion object {
+        private const val TRANSPARENT_COLOR = 0x00000000
+        private const val DELAY = 50
+        private const val FRAMES = 15
+        private const val SHUFFLE_STEP = 18
+        private const val DEFAULT_QUEUE_SIZE = 100
+
+        private const val MAX_ALPHA = 255
+        private const val ALPHA_SEGMENTS = 4
+        private const val TRANSPARENCY_ANIMATION_DELAY = 15L
     }
 }
