@@ -9,4 +9,6 @@ internal interface Figure {
     fun getCenterPoint(): Point
 
     fun getStartPoint(): Point
+
+    fun iterator(): Iterator<Point>
 }

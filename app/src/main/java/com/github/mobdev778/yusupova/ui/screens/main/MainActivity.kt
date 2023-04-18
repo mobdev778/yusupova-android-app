@@ -28,9 +28,12 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.github.mobdev778.yusupova.animatedsplashview.AnimatedSplashMode
 import com.github.mobdev778.yusupova.animatedsplashview.AnimatedSplashView
 import com.github.mobdev778.yusupova.animatedsplashview.R
+import com.github.mobdev778.yusupova.animatedtextview.AnimatedTextMode
 import com.github.mobdev778.yusupova.animatedtextview.AnimatedTextView
+import com.github.mobdev778.yusupova.ui.theme.DefaultTextColor
 import com.github.mobdev778.yusupova.ui.theme.YusupovaTheme
 
 class MainActivity : ComponentActivity() {
@@ -46,7 +49,8 @@ class MainActivity : ComponentActivity() {
                         modifier = Modifier
                             .fillMaxSize()
                             .aspectRatio(1.0f)
-                            .padding(16.dp)
+                            .padding(16.dp),
+                        mode = AnimatedSplashMode.CLOCKWISE_SHIMMER
                     )
                     Column(
                         modifier = Modifier.fillMaxSize().padding(start = 64.dp, bottom = 16.dp),
@@ -61,7 +65,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(top = 16.dp),
                             style = TextStyle(
                                 fontSize = 22.sp,
-                                color = Color(0xFF4D3731),
+                                color = DefaultTextColor,
                                 textAlign = TextAlign.Center,
                                 fontStyle = FontStyle.Italic,
                                 fontFamily = FontFamily.Serif,
@@ -70,7 +74,8 @@ class MainActivity : ComponentActivity() {
                                     offset = Offset(2.0f, 2.0f),
                                     blurRadius = 3f
                                 )
-                            )
+                            ),
+                            mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
                         )
                         AnimatedTextView(
                             text = stringResource(id = com.github.mobdev778.yusupova.R.string.verses),
@@ -80,7 +85,7 @@ class MainActivity : ComponentActivity() {
                                 .padding(top = 16.dp),
                             style = TextStyle(
                                 fontSize = 28.sp,
-                                color = Color(0xFF4D3731),
+                                color = DefaultTextColor,
                                 textAlign = TextAlign.Center,
                                 fontStyle = FontStyle.Italic,
                                 fontFamily = FontFamily.Serif,
@@ -89,7 +94,8 @@ class MainActivity : ComponentActivity() {
                                     offset = Offset(2.0f, 2.0f),
                                     blurRadius = 3f
                                 )
-                            )
+                            ),
+                            mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
                         )
                     }
                 }

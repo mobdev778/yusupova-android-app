@@ -64,6 +64,10 @@ internal class MutableFigure : Figure {
         return bestPoint!!
     }
 
+    override fun iterator(): Iterator<Point> {
+        return points.valueIterator()
+    }
+
     fun toFigure(): Figure {
         return ImmutableFigure(points, getCenterPoint(), getStartPoint())
     }

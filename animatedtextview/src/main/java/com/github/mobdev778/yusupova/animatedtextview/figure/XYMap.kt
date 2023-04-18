@@ -5,6 +5,9 @@ internal class XYMap<T> {
     private val xyValueMap = mutableMapOf<Int, T>()
 
     fun get(x: Int, y: Int): T? {
+        if (x < 0 || y < 0) {
+            return null
+        }
         val key = x.shl(X_BIT_SHIFT).or(y)
         return xyValueMap[key]
     }

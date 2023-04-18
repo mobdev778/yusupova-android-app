@@ -42,7 +42,8 @@ import kotlin.math.absoluteValue
 fun AnimatedTextView(
     text: String,
     modifier: Modifier = Modifier,
-    style: TextStyle = TextStyle()
+    style: TextStyle = TextStyle(),
+    mode: AnimatedTextMode = AnimatedTextMode.DEFAULT
 ) {
     var job: Job? = null
     val backgroundScope: CoroutineScope by lazy {
@@ -68,7 +69,7 @@ fun AnimatedTextView(
 
         if (!state.isInitialized() && job?.isActive != true && width > 0) {
             job = backgroundScope.launch {
-                state = state.initialize(text, width, height, textPaint, alignment)
+                state = state.initialize(mode, text, width, height, textPaint, alignment)
             }
         }
 

@@ -5,21 +5,21 @@ data class Point(
     val y: Int,
     val offset: Int,
     val color: Int,
-    val generation: Int
+    var generation: Int = 0
 ) {
-    var maskedRgb: Int? = null
+    private val maskedRgb: Int = color.and(RGB_MASK)
+    private val alpha: Int = color.shr(ALPHA_OFFSET).and(ALPHA_MASK)
 
-    fun getMaskedRgb(): Int {
-        val cachedRgb = maskedRgb
-        if (cachedRgb != null) {
-            return cachedRgb
+    fun getColor(alpha: Int): Int {
+        if (alpha > this.alpha) {
+            return color
         }
-        val newCachedRgb = color.and(RGB_MASK)
-        maskedRgb = newCachedRgb
-        return newCachedRgb
+        return alpha.shl(ALPHA_OFFSET).or(maskedRgb)
     }
 
     companion object {
-        const val RGB_MASK = 0xFFFFFF
+        private const val RGB_MASK = 0xFFFFFF
+        private const val ALPHA_OFFSET = 24
+        private const val ALPHA_MASK = 0xFF
     }
 }
