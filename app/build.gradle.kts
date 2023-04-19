@@ -60,6 +60,7 @@ dependencies {
         Libs.androidX.compose.ui,
         Libs.androidX.compose.uiToolingPreview,
         Libs.androidX.compose.material3,
+        Libs.androidX.compose.navigation,
 
         Libs.androidX.coreSpashScreen,
 

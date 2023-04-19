@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.ui.screens.splash
+package com.github.mobdev778.yusupova.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
@@ -7,7 +7,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
-import com.github.mobdev778.yusupova.ui.screens.main.MainActivity
 import kotlinx.coroutines.delay
 
 @SuppressLint("CustomSplashScreen")
