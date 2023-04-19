@@ -8,10 +8,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Yusupova"
+        android:name=".app.YusupovaApplication"
         tools:targetApi="31">
 
         <activity
-            android:name=".ui.screens.splash.SplashActivity"
+            android:name=".ui.SplashActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/SplashScreenTheme">
@@ -21,8 +22,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.screens.main.MainActivity"
-            android:exported="true" />
+        <activity android:name=".ui.MainActivity" />
     </application>
 
 </manifest>
