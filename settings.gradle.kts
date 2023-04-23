@@ -1,4 +1,6 @@
 rootProject.name = "Yusupova"
 include(":app")
-include(":animatedtextview")
-include(":animatedsplashview")
+include(":designsystem:animatedtextview")
+include(":designsystem:animatedsplashview")
+include(":domain")
+
