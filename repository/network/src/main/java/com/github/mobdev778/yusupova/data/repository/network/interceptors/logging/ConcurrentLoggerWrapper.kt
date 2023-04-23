@@ -14,7 +14,7 @@ internal class ConcurrentLoggerWrapper(
 
     fun flush() {
         synchronized(lock) {
-            messages.forEach {logger.log("[$requestId] $it") }
+            messages.forEach { logger.log("[$requestId] $it") }
             messages.clear()
         }
     }
