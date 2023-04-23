@@ -109,7 +109,7 @@ fun DefaultPreview() {
                 .padding(16.dp),
             style = TextStyle(
                 fontSize = 32.sp,
-                color = Color(0xFF4D3731),
+                color = DefaultTextColor,
                 textAlign = TextAlign.Center,
                 fontStyle = FontStyle.Italic,
                 fontFamily = FontFamily.Serif,

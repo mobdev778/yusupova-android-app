@@ -10,4 +10,6 @@ object ProjectVersions {
     const val kotlinVersion = "1.7.20"
     const val composeVersion = "1.3.3"
     const val composeCompilerVersion = "1.4.0"
+
+    const val daggerVersion = "2.45"
 }
