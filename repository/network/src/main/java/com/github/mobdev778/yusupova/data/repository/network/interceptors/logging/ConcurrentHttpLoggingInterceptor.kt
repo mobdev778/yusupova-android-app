@@ -3,11 +3,11 @@ package com.github.mobdev778.yusupova.data.repository.network.interceptors.loggi
 import java.io.IOException
 import java.nio.charset.Charset
 import java.nio.charset.StandardCharsets.UTF_8
-import java.util.TreeSet
 import java.util.concurrent.TimeUnit
 import okhttp3.Headers
 import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.Request
 import okhttp3.Response
 import okhttp3.internal.http.promisesBody
 import okio.Buffer
@@ -23,7 +23,7 @@ import java.util.concurrent.atomic.AtomicInteger
  * change slightly between releases. If you need a stable logging format, use your own interceptor.
  */
 internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
-    private val logger: Logger = TimberLogger()
+    private val logger: Logger = Logger.DEFAULT
 ) : Interceptor {
 
     @Volatile private var headersToRedact = emptySet<String>()
@@ -34,24 +34,6 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
     @set:JvmName("level")
     @Volatile var level = Level.NONE
 
-    fun redactHeader(name: String) {
-        val newHeadersToRedact = TreeSet(String.CASE_INSENSITIVE_ORDER)
-        newHeadersToRedact += headersToRedact
-        newHeadersToRedact += name
-        headersToRedact = newHeadersToRedact
-    }
-
-    /**
-     * Sets the level and returns this.
-     *
-     * This was deprecated in OkHttp 4.0 in favor of the [level] val. In OkHttp 4.3 it is
-     * un-deprecated because Java callers can't chain when assigning Kotlin vals. (The getter remains
-     * deprecated).
-     */
-    fun setLevel(level: Level) = apply {
-        this.level = level
-    }
-
     @JvmName("-deprecated_level")
     @Deprecated(
         message = "moved to var",
@@ -60,6 +42,7 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
     )
     fun getLevel(): Level = level
 
+    @Suppress("TooGenericExceptionCaught")
     @Throws(IOException::class)
     override fun intercept(chain: Interceptor.Chain): Response {
         val level = this.level
@@ -72,17 +55,44 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
         val logBody = level == Level.BODY
         val logHeaders = logBody || level == Level.HEADERS
 
-        val requestBody = request.body
+        val concurrentLogger = ConcurrentLoggerWrapper(counter.incrementAndGet(), lock, logger)
 
+        concurrentLogger.logRequest(chain, request, logHeaders, logBody)
+
+        val startNs = System.nanoTime()
+        val response: Response
+        try {
+            response = chain.proceed(request)
+        } catch (e: Exception) {
+            concurrentLogger.log("<-- HTTP FAILED: $e")
+            concurrentLogger.flush()
+            throw e
+        }
+
+        val tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs)
+        concurrentLogger.logResponse(response, logHeaders, logBody, tookMs)
+
+        return response
+    }
+
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
+    private fun ConcurrentLoggerWrapper.logRequest(
+        chain: Interceptor.Chain,
+        request: Request,
+        logHeaders: Boolean,
+        logBody: Boolean
+    ) {
+        val requestBody = request.body
+        val method = request.method
         val connection = chain.connection()
+
         var requestStartMessage =
-            ("--> ${request.method} ${request.url}${if (connection != null) " " + connection.protocol() else ""}")
+            ("--> $method ${request.url}${if (connection != null) " " + connection.protocol() else ""}")
         if (!logHeaders && requestBody != null) {
             requestStartMessage += " (${requestBody.contentLength()}-byte body)"
         }
 
-        val logger = ConcurrentLoggerWrapper(counter.incrementAndGet(), lock, this.logger)
-        logger.log(requestStartMessage)
+        log(requestStartMessage)
 
         if (logHeaders) {
             val headers = request.headers
@@ -92,12 +102,12 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
                 // already present, force them to be included (if available) so their values are known.
                 requestBody.contentType()?.let {
                     if (headers["Content-Type"] == null) {
-                        logger.log("Content-Type: $it")
+                        log("Content-Type: $it")
                     }
                 }
                 if (requestBody.contentLength() != -1L) {
                     if (headers["Content-Length"] == null) {
-                        logger.log("Content-Length: ${requestBody.contentLength()}")
+                        log("Content-Length: ${requestBody.contentLength()}")
                     }
                 }
             }
@@ -107,13 +117,13 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
             }
 
             if (!logBody || requestBody == null) {
-                logger.log("--> END ${request.method}")
+                log("--> END $method")
             } else if (bodyHasUnknownEncoding(request.headers)) {
-                logger.log("--> END ${request.method} (encoded body omitted)")
+                log("--> END $method (encoded body omitted)")
             } else if (requestBody.isDuplex()) {
-                logger.log("--> END ${request.method} (duplex request body omitted)")
+                log("--> END $method (duplex request body omitted)")
             } else if (requestBody.isOneShot()) {
-                logger.log("--> END ${request.method} (one-shot body omitted)")
+                log("--> END $method (one-shot body omitted)")
             } else {
                 val buffer = Buffer()
                 requestBody.writeTo(buffer)
@@ -121,35 +131,34 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
                 val contentType = requestBody.contentType()
                 val charset: Charset = contentType?.charset(UTF_8) ?: UTF_8
 
-                logger.log("")
+                log("")
                 if (buffer.isProbablyUtf8()) {
-                    logger.log(buffer.readString(charset))
-                    logger.log("--> END ${request.method} (${requestBody.contentLength()}-byte body)")
+                    log(buffer.readString(charset))
+                    log("--> END $method (${requestBody.contentLength()}-byte body)")
                 } else {
-                    logger.log(
-                        "--> END ${request.method} (binary ${requestBody.contentLength()}-byte body omitted)")
+                    log("--> END $method (binary ${requestBody.contentLength()}-byte body omitted)")
                 }
             }
         }
-        logger.flush()
+        flush()
+    }
 
-        val startNs = System.nanoTime()
-        val response: Response
-        try {
-            response = chain.proceed(request)
-        } catch (e: Exception) {
-            logger.log("<-- HTTP FAILED: $e")
-            logger.flush()
-            throw e
-        }
-
-        val tookMs = TimeUnit.NANOSECONDS.toMillis(System.nanoTime() - startNs)
+    @Suppress("CyclomaticComplexMethod", "NestedBlockDepth")
+    private fun ConcurrentLoggerWrapper.logResponse(
+        response: Response,
+        logHeaders: Boolean,
+        logBody: Boolean,
+        tookMs: Long
+    ) {
 
         val responseBody = response.body!!
         val contentLength = responseBody.contentLength()
         val bodySize = if (contentLength != -1L) "$contentLength-byte" else "unknown-length"
-        logger.log(
-            "<-- ${response.code}${if (response.message.isEmpty()) "" else ' ' + response.message} ${response.request.url} (${tookMs}ms${if (!logHeaders) ", $bodySize body" else ""})")
+        log(
+            "<-- ${response.code}" +
+            "${if (response.message.isEmpty()) "" else ' ' + response.message} " +
+            "${response.request.url} (${tookMs}ms${if (!logHeaders) ", $bodySize body" else ""})"
+        )
 
         if (logHeaders) {
             val headers = response.headers
@@ -158,9 +167,9 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
             }
 
             if (!logBody || !response.promisesBody()) {
-                logger.log("<-- END HTTP")
+                log("<-- END HTTP")
             } else if (bodyHasUnknownEncoding(response.headers)) {
-                logger.log("<-- END HTTP (encoded body omitted)")
+                log("<-- END HTTP (encoded body omitted)")
             } else {
                 val source = responseBody.source()
                 source.request(Long.MAX_VALUE) // Buffer the entire body.
@@ -179,27 +188,26 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
                 val charset: Charset = contentType?.charset(UTF_8) ?: UTF_8
 
                 if (!buffer.isProbablyUtf8()) {
-                    logger.log("")
-                    logger.log("<-- END HTTP (binary ${buffer.size}-byte body omitted)")
-                    logger.flush()
-                    return response
+                    log("")
+                    log("<-- END HTTP (binary ${buffer.size}-byte body omitted)")
+                    flush()
+                    return
                 }
 
                 if (contentLength != 0L) {
-                    logger.log("")
-                    logger.log(buffer.clone().readString(charset))
+                    log("")
+                    log(buffer.clone().readString(charset))
                 }
 
                 if (gzippedLength != null) {
-                    logger.log("<-- END HTTP (${buffer.size}-byte, $gzippedLength-gzipped-byte body)")
+                    log("<-- END HTTP (${buffer.size}-byte, $gzippedLength-gzipped-byte body)")
                 } else {
-                    logger.log("<-- END HTTP (${buffer.size}-byte body)")
+                    log("<-- END HTTP (${buffer.size}-byte body)")
                 }
             }
         }
 
-        logger.flush()
-        return response
+        flush()
     }
 
     @Suppress("ReturnCount")
@@ -223,9 +231,9 @@ internal class ConcurrentHttpLoggingInterceptor @JvmOverloads constructor(
         }
     }
 
-    private fun logHeader(headers: Headers, i: Int) {
+    private fun ConcurrentLoggerWrapper.logHeader(headers: Headers, i: Int) {
         val value = if (headers.name(i) in headersToRedact) "██" else headers.value(i)
-        logger.log(headers.name(i) + ": " + value)
+        log(headers.name(i) + ": " + value)
     }
 
     private fun bodyHasUnknownEncoding(headers: Headers): Boolean {
