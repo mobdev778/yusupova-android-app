@@ -36,6 +36,8 @@ dependencies {
         Libs.androidX.coreKtx,
         Libs.androidX.lifecycleRuntimeKtx,
 
+        Libs.kotlin.coroutinesCore,
+
         Libs.androidX.compose.ui,
         Libs.androidX.compose.uiToolingPreview,
         Libs.androidX.compose.material3,

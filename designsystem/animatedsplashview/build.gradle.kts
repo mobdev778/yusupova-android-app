@@ -40,6 +40,8 @@ dependencies {
         Libs.androidX.compose.uiToolingPreview,
         Libs.androidX.compose.material3,
 
+        Libs.kotlin.coroutinesCore,
+
         Libs.timber
     )
 
