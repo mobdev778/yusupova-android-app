@@ -5,4 +5,9 @@ sealed class Modules(internal val name: String) {
     }
 
     object domain : Modules(":domain")
+
+    sealed class repository(name: String) : Modules(":repository$name") {
+        object appConfig : repository(":appconfig")
+        object network : repository(":network")
+    }
 }

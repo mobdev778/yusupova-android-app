@@ -1,14 +1,12 @@
-package com.github.mobdev778.yusupova.animatedtextview.figure
+package com.github.mobdev778.yusupova.designsystem.animatedsplashview.figure
 
-internal data class Point(
+data class Point(
     val x: Int,
     val y: Int,
     val offset: Int,
     val color: Int,
-    var visited: Boolean = false,
     var generation: Int = 0
 ) {
-
     private val maskedRgb: Int = color.and(RGB_MASK)
     private val alpha: Int = color.shr(ALPHA_OFFSET).and(ALPHA_MASK)
 

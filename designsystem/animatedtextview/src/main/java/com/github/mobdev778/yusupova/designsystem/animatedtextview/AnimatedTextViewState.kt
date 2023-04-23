@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.animatedtextview
+package com.github.mobdev778.yusupova.designsystem.animatedtextview
 
 import android.graphics.Bitmap
 import android.graphics.Canvas
@@ -8,9 +8,9 @@ import android.text.Layout
 import android.text.Layout.Alignment
 import android.text.TextPaint
 import android.text.TextUtils
-import com.github.mobdev778.yusupova.animatedtextview.figure.Figure
-import com.github.mobdev778.yusupova.animatedtextview.figure.FigureBuilder
-import com.github.mobdev778.yusupova.animatedtextview.figure.Point
+import com.github.mobdev778.yusupova.designsystem.animatedtextview.figure.Figure
+import com.github.mobdev778.yusupova.designsystem.animatedtextview.figure.FigureBuilder
+import com.github.mobdev778.yusupova.designsystem.animatedtextview.figure.Point
 import kotlinx.coroutines.delay
 
 @Suppress("TooManyFunctions")

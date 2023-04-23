@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.animatedsplashview
+package com.github.mobdev778.yusupova.designsystem.animatedsplashview
 
 enum class AnimatedSplashMode {
     DEFAULT,

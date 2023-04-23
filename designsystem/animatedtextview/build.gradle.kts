@@ -1,10 +1,10 @@
 plugins {
     id("com.android.library")
-    id("org.jetbrains.kotlin.android")
+    kotlin("android")
 }
 
 android {
-    namespace = "com.github.mobdev778.yusupova.animatedtextview"
+    namespace = "com.github.mobdev778.yusupova.designsystem.animatedtextview"
     compileSdk = ProjectVersions.compileSdk
 
     defaultConfig {
