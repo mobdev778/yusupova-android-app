@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.animatedtextview.figure
+package com.github.mobdev778.yusupova.designsystem.animatedtextview.figure
 
 import android.graphics.Bitmap
 import android.graphics.Canvas

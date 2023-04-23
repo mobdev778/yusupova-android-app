@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.animatedsplashview
+package com.github.mobdev778.yusupova.designsystem.animatedsplashview
 
 import android.graphics.Bitmap
 import android.graphics.Matrix
@@ -21,6 +21,7 @@ import androidx.compose.ui.graphics.nativeCanvas
 import androidx.compose.ui.res.imageResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.github.mobdev778.yusupova.animatedsplashview.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.asCoroutineDispatcher

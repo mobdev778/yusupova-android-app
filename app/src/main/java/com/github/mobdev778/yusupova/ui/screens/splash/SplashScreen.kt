@@ -26,16 +26,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.github.mobdev778.yusupova.animatedsplashview.AnimatedSplashMode
-import com.github.mobdev778.yusupova.animatedsplashview.AnimatedSplashView
+import com.github.mobdev778.yusupova.designsystem.animatedsplashview.AnimatedSplashMode
+import com.github.mobdev778.yusupova.designsystem.animatedsplashview.AnimatedSplashView
 import com.github.mobdev778.yusupova.animatedsplashview.R
-import com.github.mobdev778.yusupova.animatedtextview.AnimatedTextMode
-import com.github.mobdev778.yusupova.animatedtextview.AnimatedTextView
+import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextMode
+import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextView
 import com.github.mobdev778.yusupova.ui.theme.DefaultTextColor
 import com.github.mobdev778.yusupova.ui.theme.YusupovaTheme
 
 @Composable
-fun SplashScreen(navHostController: NavHostController) {
+fun SplashScreen(navController: NavHostController) {
     // A surface container using the 'background' color from the theme
     Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
         AnimatedSplashView(

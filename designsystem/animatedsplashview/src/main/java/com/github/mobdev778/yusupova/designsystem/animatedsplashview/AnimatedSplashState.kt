@@ -1,9 +1,9 @@
-package com.github.mobdev778.yusupova.animatedsplashview
+package com.github.mobdev778.yusupova.designsystem.animatedsplashview
 
 import android.graphics.Bitmap
 import android.graphics.Color
-import com.github.mobdev778.yusupova.animatedsplashview.figure.Point
-import com.github.mobdev778.yusupova.animatedsplashview.figure.XYMap
+import com.github.mobdev778.yusupova.designsystem.animatedsplashview.figure.Point
+import com.github.mobdev778.yusupova.designsystem.animatedsplashview.figure.XYMap
 import kotlinx.coroutines.delay
 
 @Suppress("TooManyFunctions")
