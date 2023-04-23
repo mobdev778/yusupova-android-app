@@ -1,5 +1,14 @@
 sealed class Libs(internal val name: String) {
 
+    sealed class kotlin(dependencyNotation: String) : Libs(dependencyNotation) {
+        object kotlinStdLibJdk8 : kotlin("org.jetbrains.kotlin:kotlin-stdlib-jdk8:${ProjectVersions.kotlinVersion}")
+        object coroutinesCore :
+            kotlin("org.jetbrains.kotlinx:kotlinx-coroutines-core:${ProjectVersions.coroutinesVersion}")
+
+        object coroutinesAndroid :
+            kotlin("org.jetbrains.kotlinx:kotlinx-coroutines-android:${ProjectVersions.coroutinesVersion}")
+    }
+
     sealed class androidX(name: String) : Libs(name) {
 
         object coreKtx : androidX("androidx.core:core-ktx:1.9.0")
@@ -22,23 +31,28 @@ sealed class Libs(internal val name: String) {
         object dagger : dagger2("com.google.dagger:dagger:${ProjectVersions.daggerVersion}")
     }
 
-    sealed class retrofit2(name: String): Libs(name) {
+    sealed class retrofit2(name: String) : Libs(name) {
 
-        object retrofit: retrofit2("com.squareup.retrofit2:retrofit:2.9.0")
-        object moshi: retrofit2("com.squareup.moshi:moshi-kotlin:1.9.0")
-        object converterMoshi: retrofit2("com.squareup.retrofit2:converter-moshi:2.9.0")
+        object retrofit : retrofit2("com.squareup.retrofit2:retrofit:2.9.0")
+        object moshi : retrofit2("com.squareup.moshi:moshi-kotlin:1.9.0")
+        object converterMoshi : retrofit2("com.squareup.retrofit2:converter-moshi:2.9.0")
 
     }
 
-    sealed class okHttp3(name: String): Libs(name) {
+    sealed class okHttp3(name: String) : Libs(name) {
 
-        object okhttp: okHttp3("com.squareup.okhttp3:okhttp:4.10.0")
-        object loggingInterceptor: okHttp3("com.squareup.okhttp3:logging-interceptor:4.10.0")
+        object okhttp : okHttp3("com.squareup.okhttp3:okhttp:4.10.0")
+        object loggingInterceptor : okHttp3("com.squareup.okhttp3:logging-interceptor:4.10.0")
 
     }
 
     sealed class chucker(dependencyNotation: String) : Libs(dependencyNotation) {
         object library : chucker("com.github.chuckerteam.chucker:library:3.5.2")
+    }
+
+    sealed class room(dependencyNotation: String) : Libs(dependencyNotation) {
+        object runtime : room("androidx.room:room-runtime:${ProjectVersions.roomVersion}")
+        object ktx : room("androidx.room:room-ktx:${ProjectVersions.roomVersion}")
     }
 
     object timber : Libs("com.jakewharton.timber:timber:5.0.1")

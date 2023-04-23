@@ -23,12 +23,6 @@ android {
 dependencies {
     implementation (
         Libs.androidX.coreKtx,
-        Libs.androidX.lifecycleRuntimeKtx,
-
-        Libs.androidX.compose.ui,
-        Libs.androidX.compose.uiToolingPreview,
-        Libs.androidX.compose.material3,
-
-        Libs.timber
+        Libs.kotlin.coroutinesCore
     )
 }

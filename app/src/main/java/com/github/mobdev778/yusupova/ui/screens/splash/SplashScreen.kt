@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.github.mobdev778.yusupova.designsystem.animatedsplashview.AnimatedSplashMode
 import com.github.mobdev778.yusupova.designsystem.animatedsplashview.AnimatedSplashView
-import com.github.mobdev778.yusupova.animatedsplashview.R
+import com.github.mobdev778.yusupova.designsystem.animatedsplashview.R
 import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextMode
 import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextView
 import com.github.mobdev778.yusupova.ui.theme.DefaultTextColor

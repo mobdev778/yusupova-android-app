@@ -1,12 +1,9 @@
-package com.github.mobdev778.yusupova.data.repository.verses
+package com.github.mobdev778.yusupova.data.repository.verses.local
 
 import com.github.mobdev778.yusupova.domain.model.verses.Book
 import com.github.mobdev778.yusupova.domain.model.verses.Verse
-import kotlinx.coroutines.Deferred
 
-interface VersesRepository {
-
-    suspend fun sync(): Deferred<Unit>
+interface LocalDataSource {
 
     suspend fun getBooks(): List<Book>
 
@@ -17,4 +14,6 @@ interface VersesRepository {
     suspend fun getVerse(verseId: Int): Verse?
 
     suspend fun getVerseIds(): List<Int>
+
+    suspend fun writeBooks(books: List<Book>)
 }
