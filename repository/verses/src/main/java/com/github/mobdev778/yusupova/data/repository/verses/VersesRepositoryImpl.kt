@@ -1,7 +1,7 @@
 package com.github.mobdev778.yusupova.data.repository.verses
 
-import com.github.mobdev778.yusupova.data.repository.verses.local.LocalDataSource
-import com.github.mobdev778.yusupova.data.repository.verses.remote.RemoteDataSource
+import com.github.mobdev778.yusupova.data.repository.verses.local.VersesLocalDataSource
+import com.github.mobdev778.yusupova.data.repository.verses.remote.VersesRemoteDataSource
 import com.github.mobdev778.yusupova.domain.model.verses.Book
 import com.github.mobdev778.yusupova.domain.model.verses.Verse
 import kotlinx.coroutines.CoroutineScope
@@ -10,8 +10,8 @@ import kotlinx.coroutines.async
 import javax.inject.Inject
 
 internal class VersesRepositoryImpl @Inject internal constructor(
-    private val localDataSource: LocalDataSource,
-    private val remoteDataSource: RemoteDataSource,
+    private val localDataSource: VersesLocalDataSource,
+    private val remoteDataSource: VersesRemoteDataSource,
 ): VersesRepository {
 
     private val coroutineScope: CoroutineScope = CoroutineScope(Dispatchers.IO)

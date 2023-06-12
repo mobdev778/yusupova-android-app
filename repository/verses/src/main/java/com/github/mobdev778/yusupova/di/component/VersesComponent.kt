@@ -1,7 +1,7 @@
 package com.github.mobdev778.yusupova.di.component
 
-import com.github.mobdev778.yusupova.di.module.LocalDataSourceModule
-import com.github.mobdev778.yusupova.di.module.RemoteDataSourceModule
+import com.github.mobdev778.yusupova.di.module.VersesLocalDataSourceModule
+import com.github.mobdev778.yusupova.di.module.VersesRemoteDataSourceModule
 import com.github.mobdev778.yusupova.di.module.VersesModule
 import dagger.Component
 import javax.inject.Singleton
@@ -9,8 +9,8 @@ import javax.inject.Singleton
 @Singleton
 @Component(
     modules = [
-        LocalDataSourceModule::class,
-        RemoteDataSourceModule::class,
+        VersesLocalDataSourceModule::class,
+        VersesRemoteDataSourceModule::class,
         VersesModule::class
     ],
     dependencies = [

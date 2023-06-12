@@ -10,9 +10,9 @@ import com.github.mobdev778.yusupova.domain.model.verses.Book
 import com.github.mobdev778.yusupova.domain.model.verses.Verse
 import java.util.concurrent.atomic.AtomicInteger
 
-internal class LocalDataSourceImpl(
+internal class VersesLocalDataSourceImpl(
     private val database: RoomVerseDatabase
-) : LocalDataSource {
+) : VersesLocalDataSource {
 
     private val booksDao by lazy { database.booksDao() }
     private val versesDao by lazy { database.versesDao() }
