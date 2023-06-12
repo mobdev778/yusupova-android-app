@@ -1,5 +1,6 @@
 plugins {
     id("com.android.application")
+    id("de.mannodermaus.android-junit5")
     kotlin("android")
     kotlin("kapt")
 }
@@ -48,7 +49,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = ProjectVersions.composeCompilerVersion
     }
     packagingOptions {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
@@ -58,11 +59,19 @@ android {
 dependencies {
     implementation (
         Modules.designSystem.animatedTextView,
-        Modules.designSystem.animatedSplashView
+        Modules.designSystem.animatedSplashView,
+
+        Modules.domain,
+
+        Modules.repository.appConfig,
+        Modules.repository.network,
+        Modules.repository.verses
     )
 
     implementation (
         Libs.dagger2.dagger,
+
+        Libs.retrofit2.retrofit,
 
         Libs.androidX.coreKtx,
         Libs.androidX.lifecycleRuntimeKtx,
@@ -83,7 +92,8 @@ dependencies {
     )
 
     testImplementation (
-        TestLibs.jUnit
+        TestLibs.jUnit.jupiterApi,
+        TestLibs.jUnit.jupiterParams
     )
 
     androidTestImplementation (

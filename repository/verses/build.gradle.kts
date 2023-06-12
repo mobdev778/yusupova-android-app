@@ -1,5 +1,6 @@
 plugins {
     id("com.android.library")
+    id("de.mannodermaus.android-junit5")
     kotlin("android")
     kotlin("kapt")
 }
@@ -10,6 +11,7 @@ android {
 
     defaultConfig {
         minSdk = ProjectVersions.minSdk
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -47,7 +49,26 @@ dependencies {
         Libs.room.runtime,
         Libs.room.ktx,
 
-        Libs.timber
+        Libs.timber,
+
+        Libs.androidX.test.coreKtx
+    )
+
+    testImplementation(
+        TestLibs.jUnit.jupiterApi,
+        TestLibs.jUnit.jupiterParams,
+    )
+
+    androidTestImplementation(
+        AndroidTestLibs.testRunner,
+        AndroidTestLibs.jupiterApi,
+        AndroidTestLibs.jupiterParams,
+        AndroidTestLibs.hamcrest.core
+    )
+
+    testRuntimeOnly(
+        TestRuntimeLibs.jUnit.jupiterEngine,
+        TestRuntimeLibs.jUnit.vintageEngine
     )
 
     kapt(

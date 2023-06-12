@@ -5,29 +5,28 @@ import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.Index
 import androidx.room.PrimaryKey
-import com.github.mobdev778.yusupova.domain.model.verses.Verse
 
 @Entity(
-    tableName = "verse_lines",
+    tableName = "verses",
     indices = [
-        Index("verse_id")
+        Index("book_id")
     ],
     foreignKeys = [
         ForeignKey(
-            entity = LocalVerse::class,
+            entity = RoomBook::class,
             parentColumns = arrayOf("id"),
-            childColumns = arrayOf("verse_id"),
+            childColumns = arrayOf("book_id"),
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-internal data class LocalVerseLine(
+internal data class RoomVerse(
     @PrimaryKey
     val id: Int,
 
-    @ColumnInfo(name = "verse_id")
-    val verseId: Int,
+    @ColumnInfo(name = "book_id")
+    val bookId: Int,
 
-    @ColumnInfo(name = "line")
-    val line: String
+    @ColumnInfo(name = "title")
+    val title: String
 )

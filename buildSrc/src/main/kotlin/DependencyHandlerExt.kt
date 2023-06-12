@@ -26,3 +26,7 @@ fun DependencyHandler.androidTestImplementation(vararg androidTestLibs: AndroidT
 fun DependencyHandler.debugImplementation(vararg debugLibs: DebugLibs) = debugLibs.forEach {
     add("debugImplementation", it.name)
 }
+
+fun DependencyHandler.testRuntimeOnly(vararg testLibs: TestRuntimeLibs) = testLibs.forEach {
+    add("testRuntimeOnly", it.name)
+}

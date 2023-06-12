@@ -4,20 +4,23 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.github.mobdev778.yusupova.data.repository.verses.local.model.LocalVerse
+import com.github.mobdev778.yusupova.data.repository.verses.local.model.RoomVerse
 
 @Dao
 internal interface VersesDao {
 
-    @Query("SELECT * from verses WHERE book_id = :bookId")
-    suspend fun getVerses(bookId: Int): List<LocalVerse>
+    @Query("SELECT * FROM verses WHERE book_id = :bookId")
+    suspend fun getVerses(bookId: Int): List<RoomVerse>
 
-    @Query("SELECT * from verses WHERE id = :id")
-    suspend fun getVerse(id: Int): LocalVerse?
+    @Query("SELECT * FROM verses WHERE id = :id")
+    suspend fun getVerse(id: Int): RoomVerse?
 
-    @Query("SELECT id from verses")
+    @Query("SELECT id FROM verses")
     suspend fun getVerseIds(): List<Int>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insert(verse: LocalVerse): Long
+    suspend fun insert(verse: RoomVerse): Long
+
+    @Query("DELETE FROM verses")
+    suspend fun deleteAll()
 }

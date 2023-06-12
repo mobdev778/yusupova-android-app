@@ -8,7 +8,7 @@ import androidx.room.DatabaseView
     GROUP BY verses.book_id
 """
 )
-data class LocalBookItem(
+data class RoomBookItem(
     val id: Int,
     val title: String,
     val verseCount: Int
