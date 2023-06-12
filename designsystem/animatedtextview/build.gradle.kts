@@ -22,7 +22,7 @@ android {
         compose = true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = ProjectVersions.composeCompilerVersion
     }
     packagingOptions {
         resources {
@@ -46,7 +46,7 @@ dependencies {
     )
 
     testImplementation(
-        TestLibs.jUnit
+        TestLibs.jUnit.jupiterParams
     )
 
     androidTestImplementation(

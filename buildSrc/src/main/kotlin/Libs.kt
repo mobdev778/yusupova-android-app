@@ -24,6 +24,10 @@ sealed class Libs(internal val name: String) {
             object material3 : compose("androidx.compose.material3:material3:1.1.0-alpha04")
             object navigation : compose("androidx.navigation:navigation-compose:2.5.0")
         }
+
+        sealed class test(name: String) : androidX(name) {
+            object coreKtx : test("androidx.test:core-ktx:1.5.0")
+        }
     }
 
     sealed class dagger2(name: String) : Libs(name) {

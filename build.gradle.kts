@@ -10,6 +10,7 @@ buildscript {
         classpath(Plugins.androidGradlePlugin)
         classpath(Plugins.kotlinGradlePlugin)
         classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:${ProjectVersions.kotlinVersion}")
+        classpath("de.mannodermaus.gradle.plugins:android-junit5:1.9.3.0")
     }
 }
 

@@ -7,26 +7,26 @@ import androidx.room.Index
 import androidx.room.PrimaryKey
 
 @Entity(
-    tableName = "verses",
+    tableName = "verse_lines",
     indices = [
-        Index("book_id")
+        Index("verse_id")
     ],
     foreignKeys = [
         ForeignKey(
-            entity = LocalBook::class,
+            entity = RoomVerse::class,
             parentColumns = arrayOf("id"),
-            childColumns = arrayOf("book_id"),
+            childColumns = arrayOf("verse_id"),
             onDelete = ForeignKey.CASCADE
         )
     ]
 )
-internal data class LocalVerse(
+internal data class RoomVerseLine(
     @PrimaryKey
     val id: Int,
 
-    @ColumnInfo(name = "book_id")
-    val bookId: Int,
+    @ColumnInfo(name = "verse_id")
+    val verseId: Int,
 
-    @ColumnInfo(name = "title")
-    val title: String
+    @ColumnInfo(name = "line")
+    val line: String
 )

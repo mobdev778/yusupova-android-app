@@ -1,4 +1,4 @@
-package com.github.mobdev778.yusupova.di
+package com.github.mobdev778.yusupova.di.module
 
 import android.content.Context
 import com.chuckerteam.chucker.api.ChuckerInterceptor

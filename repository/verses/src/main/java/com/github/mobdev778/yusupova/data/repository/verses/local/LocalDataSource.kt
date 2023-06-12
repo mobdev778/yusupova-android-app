@@ -16,4 +16,6 @@ interface LocalDataSource {
     suspend fun getVerseIds(): List<Int>
 
     suspend fun writeBooks(books: List<Book>)
+
+    suspend fun clear()
 }

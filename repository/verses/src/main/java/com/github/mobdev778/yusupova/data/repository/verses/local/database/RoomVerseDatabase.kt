@@ -5,18 +5,18 @@ import androidx.room.RoomDatabase
 import com.github.mobdev778.yusupova.data.repository.verses.local.dao.BooksDao
 import com.github.mobdev778.yusupova.data.repository.verses.local.dao.VerseLinesDao
 import com.github.mobdev778.yusupova.data.repository.verses.local.dao.VersesDao
-import com.github.mobdev778.yusupova.data.repository.verses.local.model.LocalBook
-import com.github.mobdev778.yusupova.data.repository.verses.local.model.LocalBookItem
-import com.github.mobdev778.yusupova.data.repository.verses.local.model.LocalVerse
-import com.github.mobdev778.yusupova.data.repository.verses.local.model.LocalVerseLine
+import com.github.mobdev778.yusupova.data.repository.verses.local.model.RoomBook
+import com.github.mobdev778.yusupova.data.repository.verses.local.model.RoomBookItem
+import com.github.mobdev778.yusupova.data.repository.verses.local.model.RoomVerse
+import com.github.mobdev778.yusupova.data.repository.verses.local.model.RoomVerseLine
 
 @Database(
-    entities = [LocalBook::class, LocalVerse::class, LocalVerseLine::class ],
-    version = AbstractVerseDatabase.DATABASE_VERSION,
+    entities = [RoomBook::class, RoomVerse::class, RoomVerseLine::class ],
+    version = RoomVerseDatabase.DATABASE_VERSION,
     exportSchema = false,
-    views = [ LocalBookItem::class ]
+    views = [ RoomBookItem::class ]
 )
-internal abstract class AbstractVerseDatabase: RoomDatabase() {
+internal abstract class RoomVerseDatabase: RoomDatabase() {
 
     abstract fun booksDao(): BooksDao
     abstract fun versesDao(): VersesDao

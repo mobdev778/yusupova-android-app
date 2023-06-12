@@ -5,7 +5,7 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 
 @Entity(tableName = "books")
-internal data class LocalBook(
+internal data class RoomBook(
     @PrimaryKey
     val id: Int,
 
