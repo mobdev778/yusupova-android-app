@@ -15,7 +15,7 @@ import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
-class LocalDataSourceTest {
+class VersesLocalDataSourceTest {
 
     @BeforeEach
     fun clearDb() {
@@ -129,7 +129,7 @@ class LocalDataSourceTest {
 
     companion object {
 
-        private lateinit var dataSource: LocalDataSource
+        private lateinit var dataSource: VersesLocalDataSource
 
         @JvmStatic
         @BeforeAll
@@ -139,7 +139,7 @@ class LocalDataSourceTest {
                 context,
                 RoomVerseDatabase::class.java
             ).build()
-            dataSource = LocalDataSourceImpl(dataBase)
+            dataSource = VersesLocalDataSourceImpl(dataBase)
         }
 
         @JvmStatic

@@ -3,7 +3,7 @@ package com.github.mobdev778.yusupova.data.repository.verses.local
 import com.github.mobdev778.yusupova.domain.model.verses.Book
 import com.github.mobdev778.yusupova.domain.model.verses.Verse
 
-interface LocalDataSource {
+interface VersesLocalDataSource {
 
     suspend fun getBooks(): List<Book>
 

@@ -6,10 +6,10 @@ import com.github.mobdev778.yusupova.domain.model.verses.Book
 import retrofit2.Retrofit
 import javax.inject.Inject
 
-internal class RemoteDataSourceImpl @Inject internal constructor(
+internal class VersesRemoteDataSourceImpl @Inject internal constructor(
     private val appConfigRepository: AppConfigRepository,
     private val retrofit: Retrofit
-) : RemoteDataSource {
+) : VersesRemoteDataSource {
 
     private val serviceApi by lazy { retrofit.create(RemoteVersesApi::class.java) }
     private val bookMapper by lazy { BookMapper() }
