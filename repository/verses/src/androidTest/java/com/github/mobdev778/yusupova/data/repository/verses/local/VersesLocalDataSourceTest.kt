@@ -1,21 +1,19 @@
 package com.github.mobdev778.yusupova.data.repository.verses.local
 
-import android.content.Context
-import androidx.room.Room
-import androidx.test.core.app.ApplicationProvider
-import com.github.mobdev778.yusupova.data.repository.verses.local.database.RoomVerseDatabase
+import com.github.mobdev778.yusupova.data.repository.BaseRepositoryTest
 import com.github.mobdev778.yusupova.domain.model.verses.Book
 import com.github.mobdev778.yusupova.domain.model.verses.Verse
 import kotlinx.coroutines.runBlocking
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.core.Is.`is`
-import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.MethodSource
 
-class VersesLocalDataSourceTest {
+internal class VersesLocalDataSourceTest : BaseRepositoryTest() {
+
+    private val dataSource by lazy { component.localDataSource }
 
     @BeforeEach
     fun clearDb() {
@@ -128,19 +126,6 @@ class VersesLocalDataSourceTest {
     }
 
     companion object {
-
-        private lateinit var dataSource: VersesLocalDataSource
-
-        @JvmStatic
-        @BeforeAll
-        fun createDb() {
-            val context = ApplicationProvider.getApplicationContext<Context>()
-            val dataBase = Room.inMemoryDatabaseBuilder(
-                context,
-                RoomVerseDatabase::class.java
-            ).build()
-            dataSource = VersesLocalDataSourceImpl(dataBase)
-        }
 
         @JvmStatic
         fun booksDataProvider(): List<Arguments> {

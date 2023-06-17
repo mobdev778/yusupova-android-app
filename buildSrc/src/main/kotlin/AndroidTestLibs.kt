@@ -11,4 +11,10 @@ sealed class AndroidTestLibs(val name: String) {
     sealed class hamcrest(name: String) : AndroidTestLibs(name) {
         object core : hamcrest("org.hamcrest:hamcrest-core:2.2")
     }
+
+    sealed class okHttp3(name: String) : AndroidTestLibs(name) {
+
+        object okhttp : okHttp3("com.squareup.okhttp3:okhttp:${ProjectVersions.okHttp3}")
+        object loggingInterceptor : okHttp3("com.squareup.okhttp3:logging-interceptor:${ProjectVersions.okHttp3}")
+    }
 }

@@ -1,0 +1,57 @@
+{
+  "version": 1,
+  "books": [
+    {
+      "id": 1,
+      "name": "Agniya Barto",
+      "verses": [
+        {
+          "id": 1,
+          "name": "Myachik",
+          "lines": [
+            "Nasha Tanya gromko plachet:",
+            "Uronila v rechku myachik."
+          ]
+        },
+        {
+          "id": 2,
+          "name": "Bychok",
+          "lines": [
+            "Idet bychok, kachaetsya,",
+            "Vzdyhaet na hodu:"
+          ]
+        }
+      ]
+    },
+    {
+      "id": 2,
+      "name": "Marshak",
+      "verses": [
+        {
+          "id": 3,
+          "name": "Bagazh",
+          "lines": [
+            "Dama sdavala v bagazh",
+            "Divan, chemodan, sakvoyazh"
+          ]
+        },
+        {
+          "id": 4,
+          "name": "Gde obedal vorobey",
+          "lines": [
+            "Gde obedal, vorobey?",
+            "V zooparke u zverey"
+          ]
+        },
+        {
+          "id": 5,
+          "name": "Horoshiy den",
+          "lines": [
+            "Vot portfel,",
+            "Palto i shlyapa"
+          ]
+        }
+      ]
+    }
+  ]
+}

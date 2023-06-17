@@ -15,4 +15,5 @@ object ProjectVersions {
 
     const val daggerVersion = "2.45"
     const val roomVersion = "2.5.1"
+    const val okHttp3 = "4.10.0"
 }

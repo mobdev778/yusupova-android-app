@@ -10,4 +10,7 @@ sealed class TestLibs(val name: String) {
             object coreKtx : test("androidx.test:core-ktx:1.5.0")
         }
     }
+
+    object mockk : TestLibs("io.mockk:mockk:1.13.4")
+    object mockWebServer : TestLibs("com.squareup.okhttp3:mockwebserver:${ProjectVersions.okHttp3}")
 }

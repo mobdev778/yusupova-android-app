@@ -1,15 +1,15 @@
 plugins {
     id("com.android.library")
-    kotlin("android")
-    kotlin("kapt")
+    id("org.jetbrains.kotlin.android")
 }
 
 android {
-    namespace = "com.github.mobdev778.yusupova.repository.network"
+    namespace = "com.github.mobdev778.yusupova.testing"
     compileSdk = ProjectVersions.compileSdk
 
     defaultConfig {
         minSdk = ProjectVersions.minSdk
+        testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
 
     buildTypes {
@@ -31,26 +31,7 @@ android {
 }
 
 dependencies {
-    implementation (
-        Modules.domain
-    )
-
-    implementation (
-        Libs.dagger2.dagger,
-
-        Libs.retrofit2.retrofit,
-        Libs.retrofit2.moshi,
-        Libs.retrofit2.converterMoshi,
-
-        Libs.okHttp3.okhttp,
-        Libs.okHttp3.loggingInterceptor,
-
-        Libs.chucker.library,
-
-        Libs.timber
-    )
-
-    kapt(
-        KaptLibs.dagger2.daggerCompiler
+    api(
+        TestLibs.mockWebServer
     )
 }
