@@ -19,7 +19,7 @@ android {
             isMinifyEnabled = false
         }
         getByName("release") {
-            isMinifyEnabled = true
+            isMinifyEnabled = false
         }
     }
 
@@ -43,6 +43,7 @@ dependencies {
 
         Libs.retrofit2.retrofit,
         Libs.retrofit2.moshi,
+        Libs.retrofit2.converterMoshi,
 
         Libs.kotlin.coroutinesCore,
 
@@ -59,11 +60,14 @@ dependencies {
         TestLibs.jUnit.jupiterParams,
     )
 
+    androidTestImplementation(project(":testing"))
+
     androidTestImplementation(
         AndroidTestLibs.testRunner,
         AndroidTestLibs.jupiterApi,
         AndroidTestLibs.jupiterParams,
-        AndroidTestLibs.hamcrest.core
+        AndroidTestLibs.hamcrest.core,
+        AndroidTestLibs.okHttp3.loggingInterceptor
     )
 
     testRuntimeOnly(
@@ -74,5 +78,9 @@ dependencies {
     kapt(
         KaptLibs.dagger2.daggerCompiler,
         KaptLibs.room.roomCompiler
+    )
+
+    kaptAndroidTest(
+        KaptLibs.dagger2.daggerCompiler
     )
 }

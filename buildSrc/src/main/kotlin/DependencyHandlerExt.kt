@@ -15,6 +15,10 @@ fun DependencyHandler.kapt(vararg kaptLibs: KaptLibs) = kaptLibs.forEach {
     add("kapt", it.name)
 }
 
+fun DependencyHandler.kaptAndroidTest(vararg kaptLibs: KaptLibs) = kaptLibs.forEach {
+    add("kaptAndroidTest", it.name)
+}
+
 fun DependencyHandler.testImplementation(vararg testLibs: TestLibs) = testLibs.forEach {
     add("testImplementation", it.name)
 }
@@ -29,4 +33,12 @@ fun DependencyHandler.debugImplementation(vararg debugLibs: DebugLibs) = debugLi
 
 fun DependencyHandler.testRuntimeOnly(vararg testLibs: TestRuntimeLibs) = testLibs.forEach {
     add("testRuntimeOnly", it.name)
+}
+
+fun DependencyHandler.api(vararg libs: Libs) = libs.forEach {
+    add("api", it.name)
+}
+
+fun DependencyHandler.api(vararg testLibs: TestLibs) = testLibs.forEach {
+    add("api", it.name)
 }

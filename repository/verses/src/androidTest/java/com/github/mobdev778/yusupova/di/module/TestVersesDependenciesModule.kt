@@ -1,60 +1,56 @@
 package com.github.mobdev778.yusupova.di.module
 
 import android.content.Context
-import com.chuckerteam.chucker.api.ChuckerInterceptor
+import androidx.test.core.app.ApplicationProvider
 import com.github.mobdev778.yusupova.data.repository.appconfig.AppConfigRepository
-import com.github.mobdev778.yusupova.data.repository.network.annotation.ChuckerInterceptorAnnotation
-import com.github.mobdev778.yusupova.data.repository.network.annotation.LoggingInterceptorAnnotation
-import com.github.mobdev778.yusupova.data.repository.network.interceptors.dummy.DummyInterceptor
-import com.github.mobdev778.yusupova.data.repository.network.interceptors.logging.ConcurrentHttpLoggingInterceptor
-import com.github.mobdev778.yusupova.data.repository.network.interceptors.logging.Level
-import com.github.mobdev778.yusupova.data.repository.network.interceptors.logging.TimberLogger
-import com.github.mobdev778.yusupova.repository.network.BuildConfig
+import com.github.mobdev778.yusupova.data.repository.appconfig.AppConfigRepositoryImpl
+import com.github.mobdev778.yusupova.data.repository.appconfig.MockServerUrlAnnotation
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dagger.Module
 import dagger.Provides
-import okhttp3.Interceptor
 import okhttp3.OkHttpClient
+import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import java.util.concurrent.TimeUnit
 import javax.inject.Singleton
 
 @Module
-object NetworkModule {
+internal object TestVersesDependenciesModule {
 
     @JvmStatic
-    @Singleton
-    @LoggingInterceptorAnnotation
     @Provides
-    fun providesLoggingInterceptor(): Interceptor = when {
-        BuildConfig.DEBUG -> ConcurrentHttpLoggingInterceptor(TimberLogger()).apply { level = Level.BODY }
-        else -> DummyInterceptor
+    @Singleton
+    fun provideAppContext(): Context {
+        return ApplicationProvider.getApplicationContext()
+    }
+
+    @JvmStatic
+    @Provides
+    @Singleton
+    fun provideAppConfigRepository(@MockServerUrlAnnotation serverUrl: String): AppConfigRepository {
+        return AppConfigRepositoryImpl(serverUrl)
     }
 
     @JvmStatic
     @Singleton
-    @ChuckerInterceptorAnnotation
     @Provides
-    fun providesChuckerInterceptor(context: Context): Interceptor = when {
-        BuildConfig.DEBUG -> ChuckerInterceptor.Builder(context.applicationContext).build()
-        else -> DummyInterceptor
-    }
+    fun provideLogger(): HttpLoggingInterceptor.Logger = HttpLoggingInterceptor.Logger { message -> println(message) }
 
     @JvmStatic
     @Singleton
     @Provides
     fun providesOkHttp(
-        @LoggingInterceptorAnnotation loggingInterceptor: Interceptor,
-        @ChuckerInterceptorAnnotation chuckerInterceptor: Interceptor
+        logger: HttpLoggingInterceptor.Logger
     ): OkHttpClient {
+        val loggingInterceptor = HttpLoggingInterceptor(logger).setLevel(level = HttpLoggingInterceptor.Level.BODY)
+
         val builder = OkHttpClient.Builder().apply {
             connectTimeout(CONNECT_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             readTimeout(READ_TIMEOUT_SECONDS, TimeUnit.SECONDS)
             writeTimeout(WRITE_TIMEOUT_SECONDS, TimeUnit.SECONDS)
-            addOptionalInterceptor(loggingInterceptor)
-            addOptionalInterceptor(chuckerInterceptor)
+            addInterceptor(loggingInterceptor)
         }
         return builder.build()
     }
@@ -83,12 +79,6 @@ object NetworkModule {
             .baseUrl(serverUrl)
             .addConverterFactory(converterFactory)
             .build()
-    }
-
-    private fun OkHttpClient.Builder.addOptionalInterceptor(interceptor: Interceptor) = apply {
-        if (interceptor !is DummyInterceptor) {
-            addInterceptor(interceptor)
-        }
     }
 
     private const val CONNECT_TIMEOUT_SECONDS = 10L
