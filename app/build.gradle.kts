@@ -58,6 +58,7 @@ android {
 
 dependencies {
     implementation (
+        Modules.designSystem.base,
         Modules.designSystem.animatedTextView,
         Modules.designSystem.animatedSplashView,
 

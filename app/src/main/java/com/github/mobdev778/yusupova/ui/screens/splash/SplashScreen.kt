@@ -31,68 +31,69 @@ import com.github.mobdev778.yusupova.designsystem.animatedsplashview.AnimatedSpl
 import com.github.mobdev778.yusupova.designsystem.animatedsplashview.R
 import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextMode
 import com.github.mobdev778.yusupova.designsystem.animatedtextview.AnimatedTextView
-import com.github.mobdev778.yusupova.ui.theme.DefaultTextColor
-import com.github.mobdev778.yusupova.ui.theme.YusupovaTheme
+import com.github.mobdev778.yusupova.designsystem.base.YusupovaTheme
 
 @Composable
 fun SplashScreen(navController: NavHostController) {
-    // A surface container using the 'background' color from the theme
-    Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-        AnimatedSplashView(
-            bitmap = ImageBitmap.imageResource(id = R.drawable.splash_background),
-            modifier = Modifier
-                .fillMaxSize()
-                .aspectRatio(1.0f)
-                .padding(16.dp),
-            mode = AnimatedSplashMode.CLOCKWISE_SHIMMER
-        )
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(start = 64.dp, bottom = 16.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AnimatedTextView(
-                text = stringResource(id = com.github.mobdev778.yusupova.R.string.liliya_yusupova),
+    YusupovaTheme {
+        // A surface container using the 'background' color from the theme
+        Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+            AnimatedSplashView(
+                bitmap = ImageBitmap.imageResource(id = R.drawable.splash_background),
                 modifier = Modifier
-                    .fillMaxWidth(fraction = 0.8f)
-                    .height(54.dp)
-                    .padding(top = 16.dp),
-                style = TextStyle(
-                    fontSize = 22.sp,
-                    color = DefaultTextColor,
-                    textAlign = TextAlign.Center,
-                    fontStyle = FontStyle.Italic,
-                    fontFamily = FontFamily.Serif,
-                    shadow = Shadow(
-                        color = Color.DarkGray,
-                        offset = Offset(2.0f, 2.0f),
-                        blurRadius = 3f
-                    )
-                ),
-                mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
+                    .fillMaxSize()
+                    .aspectRatio(1.0f)
+                    .padding(16.dp),
+                mode = AnimatedSplashMode.CLOCKWISE_SHIMMER
             )
-            AnimatedTextView(
-                text = stringResource(id = com.github.mobdev778.yusupova.R.string.verses),
+            Column(
                 modifier = Modifier
-                    .fillMaxWidth(fraction = 0.8f)
-                    .height(54.dp)
-                    .padding(top = 16.dp),
-                style = TextStyle(
-                    fontSize = 28.sp,
-                    color = DefaultTextColor,
-                    textAlign = TextAlign.Center,
-                    fontStyle = FontStyle.Italic,
-                    fontFamily = FontFamily.Serif,
-                    shadow = Shadow(
-                        color = Color.DarkGray,
-                        offset = Offset(2.0f, 2.0f),
-                        blurRadius = 3f
-                    )
-                ),
-                mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
-            )
+                    .fillMaxSize()
+                    .padding(start = 64.dp, bottom = 16.dp),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                AnimatedTextView(
+                    text = stringResource(id = com.github.mobdev778.yusupova.R.string.liliya_yusupova),
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.8f)
+                        .height(54.dp)
+                        .padding(top = 16.dp),
+                    style = TextStyle(
+                        fontSize = 22.sp,
+                        color = YusupovaTheme.scheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        fontFamily = FontFamily.Serif,
+                        shadow = Shadow(
+                            color = Color.DarkGray,
+                            offset = Offset(2.0f, 2.0f),
+                            blurRadius = 3f
+                        )
+                    ),
+                    mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
+                )
+                AnimatedTextView(
+                    text = stringResource(id = com.github.mobdev778.yusupova.R.string.verses),
+                    modifier = Modifier
+                        .fillMaxWidth(fraction = 0.8f)
+                        .height(54.dp)
+                        .padding(top = 16.dp),
+                    style = TextStyle(
+                        fontSize = 28.sp,
+                        color = YusupovaTheme.scheme.onSurface,
+                        textAlign = TextAlign.Center,
+                        fontStyle = FontStyle.Italic,
+                        fontFamily = FontFamily.Serif,
+                        shadow = Shadow(
+                            color = Color.DarkGray,
+                            offset = Offset(2.0f, 2.0f),
+                            blurRadius = 3f
+                        )
+                    ),
+                    mode = AnimatedTextMode.LEFT_TO_RIGHT_SHIMMER
+                )
+            }
         }
     }
 }
@@ -109,7 +110,7 @@ fun DefaultPreview() {
                 .padding(16.dp),
             style = TextStyle(
                 fontSize = 32.sp,
-                color = DefaultTextColor,
+                color = YusupovaTheme.scheme.onSurface,
                 textAlign = TextAlign.Center,
                 fontStyle = FontStyle.Italic,
                 fontFamily = FontFamily.Serif,

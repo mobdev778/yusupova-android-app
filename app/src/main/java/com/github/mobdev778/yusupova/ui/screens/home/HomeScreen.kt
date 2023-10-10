@@ -9,15 +9,18 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.navigation.NavHostController
+import com.github.mobdev778.yusupova.designsystem.base.YusupovaTheme
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White),
-        contentAlignment = Alignment.Center
-    ) {
-        Text(text = "Hello World", color = Color.Black)
+    YusupovaTheme {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White),
+            contentAlignment = Alignment.Center
+        ) {
+            Text(text = "Hello World", color = YusupovaTheme.scheme.onSurface)
+        }
     }
 }
