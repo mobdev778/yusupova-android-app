@@ -4,8 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.navigation.compose.rememberNavController
+import com.github.mobdev778.yusupova.designsystem.base.YusupovaTheme
 import com.github.mobdev778.yusupova.navigation.NavGraph
-import com.github.mobdev778.yusupova.ui.theme.YusupovaTheme
 
 class MainActivity : ComponentActivity() {
 

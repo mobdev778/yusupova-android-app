@@ -1,5 +1,6 @@
 sealed class Modules(internal val name: String) {
     sealed class designSystem(name: String) : Modules(":designsystem$name") {
+        object base : designSystem(":base")
         object animatedTextView : designSystem(":animatedtextview")
         object animatedSplashView : designSystem(":animatedsplashview")
     }

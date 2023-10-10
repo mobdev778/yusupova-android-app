@@ -19,7 +19,10 @@ import com.github.mobdev778.yusupova.navigation.Screen
 import com.github.mobdev778.yusupova.ui.screens.home.HomeScreen
 import com.github.mobdev778.yusupova.ui.screens.splash.SplashScreen
 
-class YusupovaApplication : Application(), AppConfigDependencies, NetworkDependencies, VersesDependencies {
+class YusupovaApplication : Application(),
+    AppConfigDependencies,
+    NetworkDependencies,
+    VersesDependencies {
 
     lateinit var appConfigComponent: AppConfigComponent
     lateinit var networkComponent: NetworkComponent
